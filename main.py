@@ -1,7 +1,8 @@
 import tkinter as tk
 from students import Person
 import tkinter.messagebox as messagebox
-
+from db import Database
+from ttkbootstrap import Treeview
 
 class StudentManagementApp(tk.Tk):
 
@@ -11,7 +12,8 @@ class StudentManagementApp(tk.Tk):
         self.title("Student Management System")
         self.geometry('250x400')
         self.create_widgets()
-        # self.database = Database()
+        self.configure(bg="pink")
+        self.database = Database()
 
     def create_widgets(self):
         lbl_id = tk.Label(self, text='melli code:')
@@ -56,38 +58,61 @@ class StudentManagementApp(tk.Tk):
         btn_delete = tk.Button(self, text='Delet student', command=self.del_student)
         btn_delete.grid(row=6, column=1, padx=10, pady=10)
 
-        btn_clear = tk.Button(self, text='Clear student', command=self.clear_entries)
-        btn_delete.grid(row=7, column=0, padx=10, pady=10)
+        btn_clear = tk.Button(self, text='Clear entries', command=self.clear_entries)
+        btn_clear.grid(row=7, column=0, padx=10, pady=10)
+
 
     def edit_student(self):
         pass
 
     def view_student(self):
-        pass
+
+        view_window = tk.Toplevel(self)
+        view_window.title('view student')
+
+        title_label= tk.Label(view_window, text="All students", font=('Arial', 16))
+        title_label.pack(pady=10)
+
+        student_grid = Treeview(view_window, columns=("meli", "first_name", "last_name", "age", "email"),
+                                show="headings")
+
+        student_grid.heading("meli",text="meli code")
+        student_grid.heading("first_name", text="First Name")
+        student_grid.heading("last_name", text="Last Name")
+        student_grid.heading("age", text="Age")
+        student_grid.heading("email", text="Email")
+        student_grid['show'] = 'headings'
+
+        student = self.database.get_all_student()
+
+        for student in student:
+            student_grid.insert("", tk.END, values=student)
+
+        student_grid.pack(fill=tk.BOTH, expand=True)
 
     def del_student(self):
         pass
 
     def clear_entries(self):
-        self.entry_id.delete(0, tk.End)
-        self.entry_first_name.delete(0, tk.End)
-        self.entry_last_name.delete(0, tk.End)
-        self.entry_age.delete(0, tk.End)
-        self.entry_email.delete(0, tk.End)
+        self.entry_id.delete(0, tk.END)
+        self.entry_first_name.delete(0, tk.END)
+        self.entry_last_name.delete(0, tk.END)
+        self.entry_age.delete(0, tk.END)
+        self.entry_email.delete(0, tk.END)
 
     def add_student(self):
 
         meli = self.entry_id.get()
-        first_name = self.entry_first.get()
+        first_name = self.entry_first_name.get()
         last_name = self.entry_last_name.get()
         age = self.entry_age.get()
         email = self.entry_email.get()
 
         if meli and first_name and last_name and email:
-            person = Person(meli, first_name, last_name, age, email)
-            messagebox.showinfo("success", "student added succeccfully!")
-
-            self.clear_entrise()
+            per1 = Person(meli, first_name, last_name, age, email)
+            # messagebox.showinfo("success", "student added succeccfully!")
+            self.database.add_student(per1)
+            self.clear_entries()
 
         else:
             messagebox.showwarning('Error', 'please fill in all the fields !')
